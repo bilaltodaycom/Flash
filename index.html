@@ -421,39 +421,77 @@
     <!-- Scripts -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp, collection, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
+// 🔹 Firebase Konfiguration
 const firebaseConfig = {
-  apiKey: "AIzaSyBfwH-PDktH9YdAR2DEvXI0T2mlSwt5BvA",
+  apiKey: "DEIN_API_KEY_HIER",
   authDomain: "flash-5c70c.firebaseapp.com",
   projectId: "flash-5c70c",
-  storageBucket: "flash-5c70c.firebasestorage.app",
+  storageBucket: "flash-5c70c.appspot.com",
   messagingSenderId: "593890955955",
   appId: "1:593890955955:web:16e3f5bbaaa76bb8b856c6",
   measurementId: "G-9LXMMEX0HB"
 };
 
+// 🔹 Firebase initialisieren
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// 🔹 Anonym anmelden (kein await nötig, .then/.catch verwenden)
 signInAnonymously(auth)
-  .then(() => {
-    console.log("Anonym angemeldet");
-  })
-  .catch((error) => {
-    console.error("Firebase Auth Fehler:", error);
-  });
+  .then(() => console.log("Anonym angemeldet"))
+  .catch(err => console.error("Firebase Auth Fehler:", err));
 
+// 🔹 State für Spieler & Lobby
+const state = {
+  user: null,
+  roomId: null,
+  playerName: null,
+  isHost: false,
+  hostId: null,
+  players: {},
+  currentGame: null,
+  gameState: {},
+  unsubs: []
+};
+
+// 🔹 Firebase Auth State Listener
+onAuthStateChanged(auth, (user) => {
+  if(user) {
+    state.user = user;
+    console.log("User ready:", user.uid);
+  }
+});
+
+// 🔹 Räume erstellen
 window.createRoom = async () => {
-  const roomId = Math.random().toString(36).substring(2, 8);
+  if (!state.user) return alert("Noch nicht angemeldet!");
+  const name = document.getElementById('playerNameInput').value.trim();
+  if(!name) return alert("Bitte gib einen Namen ein!");
 
-  await setDoc(doc(db, "rooms", roomId), {
-    createdAt: Date.now()
-  });
+  state.playerName = name;
+  const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+  state.roomId = roomId;
+  state.isHost = true;
+  state.hostId = state.user.uid;
 
-  alert("Lobby erstellt: " + roomId);
+  try {
+    await setDoc(doc(db, "rooms", roomId), {
+      createdAt: serverTimestamp(),
+      host: state.user.uid,
+      status: 'lobby',
+      currentGame: null,
+      players: { [state.user.uid]: { name: state.playerName, joinedAt: Date.now() } },
+      gameState: {}
+    });
+    document.getElementById('displayRoomCode').innerText = roomId;
+    alert("Lobby erstellt: " + roomId);
+  } catch(e) {
+    console.error("Fehler beim Erstellen der Lobby:", e);
+  }
 };
 </script>
         // ==========================================
