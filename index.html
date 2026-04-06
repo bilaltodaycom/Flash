@@ -419,29 +419,38 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
-        // ==========================================
-        // 1. App Configuration & State
-        // ==========================================
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'flash-party-games';
-        let db, auth;
-        
-        const state = {
-            user: null,
-            playerName: '',
-            roomId: null,
-            isHost: false,
-            players: {},
-            currentGame: null,
-            gameState: {},
-            hostId: null,
-            unsubs: []
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyBfwH-PDktH9YdAR2DEvXI0T2mlSwt5BvA",
+  authDomain: "flash-5c70c.firebaseapp.com",
+  projectId: "flash-5c70c",
+  storageBucket: "flash-5c70c.firebasestorage.app",
+  messagingSenderId: "593890955955",
+  appId: "1:593890955955:web:16e3f5bbaaa76bb8b856c6",
+  measurementId: "G-9LXMMEX0HB"
+};
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+await signInAnonymously(auth);
+
+window.createRoom = async () => {
+  const roomId = Math.random().toString(36).substring(2, 8);
+
+  await setDoc(doc(db, "rooms", roomId), {
+    createdAt: Date.now()
+  });
+
+  alert("Lobby erstellt: " + roomId);
+};
+</script>
+<button onclick="createRoom()">Lobby erstellen</button>
         // ==========================================
         // 2. Init & Firebase Setup
         // ==========================================
