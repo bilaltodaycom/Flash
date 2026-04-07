@@ -616,8 +616,8 @@
          * Es speichert keine Daten dauerhaft in Tabellen, sondern sendet sie live zwischen Spielern.
          * Stelle nur sicher, dass in den Einstellungen unter "Realtime" keine generellen Blockaden aktiv sind (standardmäßig funktioniert es direkt).
          */
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE'; // <--- HIER DEINE URL EINTRAGEN (z.B. https://xyz.supabase.co)
-        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE'; // <--- HIER DEINEN ANON KEY EINTRAGEN
+        const SUPABASE_URL = 'https://bmvakezzkthdjxpbtlfk.supabase.co'; // <--- HIER DEINE URL EINTRAGEN (z.B. https://xyz.supabase.co)
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtdmFrZXp6a3RoZGp4cGJ0bGZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MjE3NzQsImV4cCI6MjA5MTA5Nzc3NH0.mb460TnQN1z_sko4D1bsVnHJtClXg-2kfS68B5fAUs4'; // <--- HIER DEINEN ANON KEY EINTRAGEN
         
         let supabase = null;
         let channel = null;
