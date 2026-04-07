@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flash | BilalToday.com</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@500;700;800&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (für Layout & Utilities) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        neonPurple: '#8b5cf6',
+                        neonBlue: '#3b82f6',
+                        neonPink: '#ec4899',
+                        neonYellow: '#eab308'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(139, 92, 246, 0.3);
+        }
+
+        body {
+            background-color: #0f172a;
+            color: white;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        /* Hintergrund-Animation Base */
+        #particles-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px 0 rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.6);
+        }
+
+        /* Neon Glows */
+        .neon-text-purple {
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.8), 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .neon-text-blue {
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .neon-text-pink {
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.8), 0 0 20px rgba(236, 72, 153, 0.4);
+        }
+
+        .neon-btn {
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: rgba(255,255,255,0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .neon-btn:hover::after, .neon-btn:active::after {
+            opacity: 1;
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .neon-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+        }
+
+        .neon-btn-pink {
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+        }
+
+        /* Animations */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+            50% { opacity: 0.8; transform: scale(1.05); filter: brightness(1.2); }
+        }
+
+        @keyframes slide-in-bottom {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes card-flip {
+            0% { transform: perspective(1000px) rotateY(90deg); opacity: 0; }
+            100% { transform: perspective(1000px) rotateY(0deg); opacity: 1; }
+        }
+
+        .animate-slide-in { animation: slide-in-bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .animate-pulse-glow { animation: pulse-glow 2s infinite; }
+        .animate-flip { animation: card-flip 0.6s ease-out forwards; }
+
+        /* Loader Bar */
+        .loader-bar-container {
+            width: 80%; max-width: 300px; height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px; overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .loader-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            box-shadow: 0 0 10px #8b5cf6;
+            transition: width 0.1s linear;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 20px;
+            padding-top: 80px; /* Space for branding */
+            padding-bottom: 40px;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Input Styling */
+        input[type="text"] {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: white;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.5); border-radius: 10px; }
+
+        /* Role Card */
+        .role-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .role-card.revealed .role-card-inner {
+            transform: rotateY(180deg);
+        }
+        .role-card-front, .role-card-back {
+            backface-visibility: hidden;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .role-card-back { transform: rotateY(180deg); }
+    </style>
+</head>
+<body>
+
+    <!-- Hyperrealistischer Partikel Hintergrund -->
+    <canvas id="particles-bg"></canvas>
+
+    <!-- Global Branding -->
+    <header id="global-branding" class="fixed top-0 left-0 w-full text-center z-50 p-4 opacity-0 transition-opacity duration-1000 bg-gradient-to-b from-darkBg to-transparent pointer-events-none">
+        <h1 class="font-display font-black text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-neonBlue via-neonPurple to-neonPink animate-pulse-glow">
+            BilalToday<span class="text-white text-sm font-normal">.com</span>
+        </h1>
+    </header>
+
+    <!-- ==================== SCREEN 1: LADER ==================== -->
+    <div id="screen-loader" class="screen active justify-center items-center z-50 bg-darkBg !p-0">
+        <div class="text-center animate-slide-in">
+            <h1 class="font-display font-black text-6xl md:text-8xl mb-2 text-transparent bg-clip-text bg-gradient-to-br from-neonBlue via-neonPurple to-neonPink animate-pulse-glow drop-shadow-2xl">
+                FLASH
+            </h1>
+            <p class="font-heading text-gray-300 tracking-widest text-sm md:text-lg mb-12 uppercase neon-text-blue">
+                Partyspiele mit Freunden
+            </p>
+            
+            <div class="flex justify-center w-full">
+                <div class="loader-bar-container">
+                    <div id="loader-progress" class="loader-bar"></div>
+                </div>
+            </div>
+            <p id="loader-text" class="text-xs text-gray-500 mt-4 font-mono">System wird initialisiert...</p>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 2: HAUPTMENÜ ==================== -->
+    <div id="screen-home" class="screen items-center">
+        <div class="max-w-md w-full w-full mx-auto space-y-6 mt-4">
+            
+            <div class="text-center mb-8 animate-slide-in" style="animation-delay: 0.1s;">
+                <h2 class="font-heading text-3xl font-bold mb-2">Wähle dein Spiel</h2>
+                <p class="text-gray-400 text-sm">Ein Gerät. Lokaler Multiplayer. Gib das Handy herum.</p>
+            </div>
+
+            <!-- Card: Imposter -->
+            <div class="glass-card p-6 cursor-pointer relative overflow-hidden group animate-slide-in" style="animation-delay: 0.2s;" onclick="startGameSetup('imposter')">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-neonPurple rounded-full mix-blend-screen filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg">
+                        <i class="fa-solid fa-user-secret"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-xl neon-text-purple">Imposter</h3>
+                        <p class="text-gray-400 text-xs mt-1">Wer lügt? Finde den Betrüger unter euch.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Fake or Fact -->
+            <div class="glass-card p-6 cursor-pointer relative overflow-hidden group animate-slide-in" style="animation-delay: 0.3s;" onclick="startGameSetup('fof')">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-neonBlue rounded-full mix-blend-screen filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-2xl shadow-lg">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-xl neon-text-blue">Fake or Fact</h3>
+                        <p class="text-gray-400 text-xs mt-1">Wahrheit oder Lüge? Testet euer Wissen.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: 100 Questions -->
+            <div class="glass-card p-6 cursor-pointer relative overflow-hidden group animate-slide-in" style="animation-delay: 0.4s;" onclick="startGameSetup('q100')">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-neonPink rounded-full mix-blend-screen filter blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-2xl shadow-lg">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-heading font-bold text-xl neon-text-pink">100 Questions</h3>
+                        <p class="text-gray-400 text-xs mt-1">Tiefe & lustige Fragen für die Runde.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="editPlayers()" class="w-full mt-6 py-3 text-sm text-gray-400 hover:text-white transition-colors flex items-center justify-center gap-2">
+                <i class="fa-solid fa-users-gear"></i> Spieler verwalten
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 3: SETUP PLAYERS ==================== -->
+    <div id="screen-setup" class="screen items-center">
+        <div class="max-w-md w-full mx-auto glass-card p-6 mt-10 animate-slide-in">
+            <h2 class="font-heading text-2xl font-bold mb-4 text-center neon-text-purple">Wer spielt mit?</h2>
+            <p class="text-xs text-gray-400 text-center mb-6">Trage mindestens 3 Spieler ein. Gib das Handy danach im Kreis herum.</p>
+            
+            <div id="player-list" class="space-y-3 mb-6 max-h-[40vh] overflow-y-auto pr-2">
+                <!-- Dynamische Spielerliste -->
+            </div>
+
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="new-player-input" placeholder="Spielername..." class="flex-1 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-neonPurple" onkeypress="handlePlayerInput(event)">
+                <button onclick="addPlayer()" class="bg-white/10 hover:bg-white/20 text-white rounded-xl px-5 transition-colors">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <button onclick="finishSetup()" class="neon-btn w-full py-4 rounded-xl font-heading font-bold text-lg tracking-wide">
+                Speichern & Weiter
+            </button>
+            <button onclick="nav('home')" class="w-full mt-4 py-2 text-gray-400 text-sm">Zurück zum Menü</button>
+        </div>
+    </div>
+
+
+    <!-- ==================== GAME 1: IMPOSTER ==================== -->
+    <!-- Imposter: Pass Phone -->
+    <div id="screen-imp-pass" class="screen items-center justify-center">
+        <div class="max-w-md w-full text-center glass-card p-8 animate-flip">
+            <i class="fa-solid fa-mobile-screen-button text-5xl mb-6 text-neonBlue animate-pulse-glow"></i>
+            <h2 class="font-heading text-3xl font-bold mb-2">Handy weitergeben</h2>
+            <p class="text-gray-300 mb-8">Gib das Gerät jetzt an:</p>
+            <div id="imp-current-player" class="text-4xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-neonBlue to-neonPurple mb-10">
+                Name
+            </div>
+            <button onclick="showImposterRole()" class="neon-btn w-full py-4 rounded-xl font-bold text-lg">
+                Ich bin <span id="imp-btn-name">Name</span> (Rolle zeigen)
+            </button>
+        </div>
+    </div>
+
+    <!-- Imposter: Reveal Role -->
+    <div id="screen-imp-reveal" class="screen items-center justify-center">
+        <div class="max-w-md w-full text-center perspective-1000">
+            <div id="role-card-container" class="role-card w-full h-[400px] relative rounded-3xl cursor-pointer">
+                <div class="role-card-inner w-full h-full relative rounded-3xl">
+                    <!-- Front (Tap to reveal) -->
+                    <div class="role-card-front glass-card w-full h-full flex flex-col items-center justify-center p-6 border-neonPurple">
+                        <i class="fa-solid fa-eye text-5xl text-gray-500 mb-4"></i>
+                        <h2 class="font-heading text-xl font-bold text-gray-300">Tippe auf die Karte,</h2>
+                        <p class="text-gray-400">um deine Rolle zu sehen</p>
+                    </div>
+                    <!-- Back (The Role) -->
+                    <div class="role-card-back glass-card w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[rgba(139,92,246,0.1)] to-transparent">
+                        <div id="imp-role-icon" class="text-6xl mb-6"></div>
+                        <h3 id="imp-role-title" class="font-heading text-2xl font-bold mb-2 text-gray-400">Deine Rolle:</h3>
+                        <div id="imp-role-word" class="font-display text-4xl font-black neon-text-purple text-center">WORT</div>
+                        <p id="imp-role-desc" class="text-gray-400 text-sm mt-6 px-4">Merke dir das Wort und lass dir nichts anmerken.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="imp-next-btn" onclick="nextImposterTurn()" class="neon-btn w-full py-4 rounded-xl font-bold text-lg mt-8 opacity-0 pointer-events-none transition-opacity duration-500">
+                Verstanden, verbergen!
+            </button>
+        </div>
+    </div>
+
+    <!-- Imposter: Discussion & Vote -->
+    <div id="screen-imp-vote" class="screen items-center">
+        <div class="max-w-md w-full mx-auto w-full animate-slide-in mt-4">
+            <div class="text-center mb-8">
+                <h2 class="font-heading text-3xl font-bold neon-text-pink mb-2">Abstimmung</h2>
+                <p class="text-gray-300">Diskutiert! Wer hat sich verdächtig verhalten? Stimmt jetzt ab.</p>
+            </div>
+            
+            <div id="imp-vote-list" class="space-y-3 mb-8">
+                <!-- Buttons to vote for players -->
+            </div>
+            
+            <div class="text-center">
+                <button onclick="nav('home')" class="text-sm text-gray-500 underline">Spiel abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Imposter: Result -->
+    <div id="screen-imp-result" class="screen items-center justify-center text-center">
+        <div class="max-w-md w-full glass-card p-8 animate-flip border-neonPink relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-[rgba(236,72,153,0.2)] to-transparent opacity-50"></div>
+            <h2 class="font-heading text-xl font-bold text-gray-300 mb-2 relative z-10">Der Imposter war...</h2>
+            <div id="imp-result-name" class="font-display text-5xl font-black neon-text-pink mb-6 relative z-10">Name</div>
+            <p class="text-gray-300 mb-2 relative z-10">Das geheime Wort war:</p>
+            <div id="imp-result-word" class="font-heading text-2xl font-bold text-white mb-8 relative z-10">WORT</div>
+            
+            <button onclick="startGameSetup('imposter')" class="neon-btn w-full py-4 rounded-xl font-bold text-lg relative z-10 mb-3">
+                Noch eine Runde
+            </button>
+            <button onclick="nav('home')" class="w-full py-3 text-gray-400 text-sm relative z-10">Hauptmenü</button>
+        </div>
+    </div>
+
+
+    <!-- ==================== GAME 2: FAKE OR FACT ==================== -->
+    <div id="screen-fof" class="screen items-center">
+        <div class="max-w-md w-full mx-auto w-full animate-slide-in mt-4">
+            
+            <div class="flex justify-between items-center mb-8 bg-black/20 rounded-2xl p-4 border border-white/10">
+                <div>
+                    <p class="text-xs text-gray-400 uppercase tracking-wider">Aktueller Spieler</p>
+                    <h3 id="fof-current-player" class="font-heading text-xl font-bold text-neonBlue">Name</h3>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider">Punkte</p>
+                    <h3 id="fof-score" class="font-display text-2xl font-black text-white">0</h3>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 text-center min-h-[250px] flex flex-col justify-center relative overflow-hidden mb-8 shadow-lg shadow-blue-900/20">
+                <i class="fa-solid fa-quote-left absolute top-4 left-4 text-3xl text-white/5"></i>
+                <p id="fof-statement" class="font-heading text-xl md:text-2xl font-semibold leading-relaxed relative z-10">
+                    Aussage lädt...
+                </p>
+                <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-3xl text-white/5"></i>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="answerFoF(false)" class="glass-card p-6 border-red-500/30 hover:bg-red-500/20 hover:border-red-500 transition-all flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-xmark text-4xl text-red-500"></i>
+                    <span class="font-bold text-lg">FAKE</span>
+                </button>
+                <button onclick="answerFoF(true)" class="glass-card p-6 border-green-500/30 hover:bg-green-500/20 hover:border-green-500 transition-all flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-check text-4xl text-green-500"></i>
+                    <span class="font-bold text-lg">FACT</span>
+                </button>
+            </div>
+
+            <!-- FoF Feedback Overlay (Hidden by default) -->
+            <div id="fof-feedback" class="absolute inset-0 z-50 flex items-center justify-center bg-darkBg/90 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+                <div class="text-center transform scale-75 transition-transform duration-300" id="fof-feedback-content">
+                    <div id="fof-icon" class="text-8xl mb-4"></div>
+                    <h2 id="fof-result-text" class="font-display text-4xl font-black mb-2">Richtig!</h2>
+                    <p id="fof-explanation" class="text-gray-300 max-w-sm px-4 mx-auto"></p>
+                    <button onclick="nextFoFTurn()" class="mt-8 neon-btn px-8 py-3 rounded-xl font-bold">Weiter</button>
+                </div>
+            </div>
+
+            <button onclick="nav('home')" class="w-full mt-8 py-3 text-gray-500 text-sm">Spiel beenden</button>
+        </div>
+    </div>
+
+
+    <!-- ==================== GAME 3: 100 QUESTIONS ==================== -->
+    <div id="screen-q100" class="screen items-center">
+        <div class="max-w-md w-full mx-auto w-full animate-slide-in mt-10">
+            
+            <div class="text-center mb-10">
+                <p class="text-gray-400 mb-2 uppercase tracking-widest text-xs">Frage für:</p>
+                <h2 id="q100-player" class="font-heading text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neonPink to-neonYellow animate-pulse-glow">Name</h2>
+            </div>
+
+            <div class="glass-card p-10 text-center min-h-[300px] flex flex-col justify-center relative shadow-[0_0_40px_rgba(236,72,153,0.15)] border-pink-500/20 mb-10">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neonPink to-transparent opacity-50"></div>
+                <h3 id="q100-question" class="font-heading text-2xl md:text-3xl font-bold leading-tight">
+                    Frage lädt...
+                </h3>
+            </div>
+
+            <button onclick="nextQ100()" class="neon-btn-pink w-full py-5 rounded-2xl font-bold text-xl shadow-lg flex items-center justify-center gap-3">
+                Nächster Spieler <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            
+            <button onclick="nav('home')" class="w-full mt-6 py-3 text-gray-500 text-sm">Zurück zum Menü</button>
+        </div>
+    </div>
+
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        /* --- STATE MANAGEMENT --- */
+        let players = []; // Array von Strings (Namen)
+        let currentScreen = 'loader';
+        let pendingGameStart = null;
+
+        // Imposter State
+        const imposterThemes = [
+            ["Strand", "Wüste"], ["Hund", "Katze"], ["Kaffee", "Tee"], ["Auto", "Fahrrad"],
+            ["Kino", "Theater"], ["Winter", "Sommer"], ["Pizza", "Burger"], ["Handy", "Laptop"],
+            ["New York", "Paris"], ["Fußball", "Basketball"], ["Gitarre", "Klavier"], ["Bier", "Wein"]
+        ];
+        let impState = { imposterIndex: -1, currentTurn: 0, wordCiv: "", wordImp: "DU BIST DER IMPOSTER" };
+
+        // Fake or Fact State
+        const fofData = [
+            { q: "Erdbeeren sind aus botanischer Sicht keine Beeren, sondern Sammelnussfrüchte.", a: true, exp: "Bananen hingegen sind Beeren!" },
+            { q: "Menschen nutzen nur 10% ihres Gehirns.", a: false, exp: "Ein Mythos. Wir nutzen fast das gesamte Gehirn, nur nicht immer gleichzeitig." },
+            { q: "Honig verdirbt nie. Man hat essbaren Honig in altägyptischen Gräbern gefunden.", a: true, exp: "Aufgrund des geringen Wassergehalts und der Säure können Bakterien nicht überleben." },
+            { q: "Wasserläufer können auf dem Wasser laufen, weil sie Saugnäpfe an den Füßen haben.", a: false, exp: "Sie nutzen die Oberflächenspannung des Wassers und wasserabweisende Härchen." },
+            { q: "Oktopusse haben drei Herzen.", a: true, exp: "Zwei pumpen Blut zu den Kiemen, eines durch den restlichen Körper." },
+            { q: "Ein Tag auf der Venus ist länger als ein Jahr auf der Venus.", a: true, exp: "Sie dreht sich sehr langsam um die eigene Achse (243 Erdentage), aber schneller um die Sonne (225 Erdentage)." },
+            { q: "Napoleon Bonaparte war extrem klein für seine Zeit.", a: false, exp: "Er war etwa 1,69m groß, was damals absolute Durchschnittsgröße war." },
+            { q: "Wassermelonen bestehen zu 92% aus Wasser.", a: true, exp: "Deshalb sind sie ein perfekter Sommer-Snack." }
+        ];
+        let fofState = { currentTurn: 0, scores: {}, remainingQs: [] };
+
+        // 100 Questions State
+        const q100Data = [
+            "Was war der unangenehmste Moment in deinem Leben?",
+            "Welche Verschwörungstheorie glaubst du heimlich?",
+            "Wenn du für einen Tag unsichtbar wärst, was würdest du tun?",
+            "Was ist das Dümmste, wofür du jemals viel Geld ausgegeben hast?",
+            "Welchen Film liebst du, obwohl ihn alle anderen hassen?",
+            "Wer in dieser Runde würde als erstes in einer Zombie-Apokalypse sterben?",
+            "Was ist deine nutzloseste Fähigkeit?",
+            "Was würdest du tun, wenn du wüsstest, dass du nicht scheitern kannst?",
+            "Was war deine schlimmste Modesünde?",
+            "Wenn dein Leben ein Film wäre, welches Genre wäre es?"
+        ];
+        let q100State = { currentTurn: 0, remainingQs: [] };
+
+        /* --- INITIALIZATION & UTILS --- */
+        document.addEventListener("DOMContentLoaded", () => {
+            initParticles();
+            simulateLoading();
+            loadPlayersFromStorage();
+        });
+
+        function nav(screenId) {
+            // Hide all
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            // Show target
+            const target = document.getElementById('screen-' + screenId);
+            if(target) {
+                target.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+            
+            // Branding visibility
+            const branding = document.getElementById('global-branding');
+            if(screenId !== 'loader') {
+                branding.classList.remove('opacity-0');
+                branding.classList.add('opacity-100');
+            } else {
+                branding.classList.add('opacity-0');
+                branding.classList.remove('opacity-100');
+            }
+
+            currentScreen = screenId;
+        }
+
+        function simulateLoading() {
+            const bar = document.getElementById('loader-progress');
+            const text = document.getElementById('loader-text');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if(progress > 100) progress = 100;
+                bar.style.width = progress + '%';
+                
+                if(progress > 30) text.innerText = "Lade Assets...";
+                if(progress > 70) text.innerText = "Bereite Spiele vor...";
+                
+                if(progress === 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        nav('home');
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        /* --- PLAYER MANAGEMENT --- */
+        function loadPlayersFromStorage() {
+            const saved = localStorage.getItem('flash_players');
+            if(saved) {
+                players = JSON.parse(saved);
+            }
+        }
+
+        function savePlayers() {
+            localStorage.setItem('flash_players', JSON.stringify(players));
+        }
+
+        function startGameSetup(gameId) {
+            pendingGameStart = gameId;
+            if(players.length < (gameId === 'imposter' ? 3 : 2)) {
+                editPlayers();
+            } else {
+                initGame(gameId);
+            }
+        }
+
+        function editPlayers() {
+            renderPlayerList();
+            nav('setup');
+        }
+
+        function handlePlayerInput(e) {
+            if(e.key === 'Enter') addPlayer();
+        }
+
+        function addPlayer() {
+            const input = document.getElementById('new-player-input');
+            const name = input.value.trim();
+            if(name && !players.includes(name)) {
+                players.push(name);
+                input.value = '';
+                savePlayers();
+                renderPlayerList();
+            }
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            savePlayers();
+            renderPlayerList();
+        }
+
+        function renderPlayerList() {
+            const list = document.getElementById('player-list');
+            list.innerHTML = '';
+            players.forEach((p, i) => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/10 animate-slide-in" style="animation-delay: ${i*0.05}s">
+                        <span class="font-semibold">${p}</span>
+                        <button onclick="removePlayer(${i})" class="text-red-400 hover:text-red-300 p-2">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function finishSetup() {
+            if(pendingGameStart === 'imposter' && players.length < 3) {
+                alert('Für Imposter braucht ihr mindestens 3 Spieler!');
+                return;
+            }
+            if(players.length < 2) {
+                alert('Füge mindestens 2 Spieler hinzu!');
+                return;
+            }
+            
+            if(pendingGameStart) {
+                initGame(pendingGameStart);
+                pendingGameStart = null;
+            } else {
+                nav('home');
+            }
+        }
+
+        /* --- ROUTING GAME INIT --- */
+        function initGame(gameId) {
+            if(gameId === 'imposter') startImposter();
+            else if(gameId === 'fof') startFoF();
+            else if(gameId === 'q100') startQ100();
+        }
+
+        /* ==================== IMPOSTER LOGIC ==================== */
+        function startImposter() {
+            // Setup roles
+            impState.imposterIndex = Math.floor(Math.random() * players.length);
+            const theme = imposterThemes[Math.floor(Math.random() * imposterThemes.length)];
+            impState.wordCiv = theme[0];
+            impState.wordImp = "Du bist der Imposter!";
+            // Kann man auch schwerer machen, indem der Imposter theme[1] bekommt.
+            // Für klassisches Party-Feeling: "Finde heraus, was das Wort ist!"
+            
+            impState.currentTurn = 0;
+            renderImposterPassScreen();
+        }
+
+        function renderImposterPassScreen() {
+            if(impState.currentTurn >= players.length) {
+                // All players saw roles
+                renderImposterVoteScreen();
+                return;
+            }
+            const pName = players[impState.currentTurn];
+            document.getElementById('imp-current-player').innerText = pName;
+            document.getElementById('imp-btn-name').innerText = pName;
+            
+            // Reset card
+            const card = document.getElementById('role-card-container');
+            card.classList.remove('revealed');
+            document.getElementById('imp-next-btn').classList.remove('opacity-100', 'pointer-events-auto');
+            document.getElementById('imp-next-btn').classList.add('opacity-0', 'pointer-events-none');
+            
+            // Add click listener dynamically to prevent double triggers
+            card.onclick = revealImposterRole;
+
+            nav('imp-pass');
+        }
+
+        function revealImposterRole() {
+            const card = document.getElementById('role-card-container');
+            if(card.classList.contains('revealed')) return; // Already revealed
+
+            const isImp = (impState.currentTurn === impState.imposterIndex);
+            
+            document.getElementById('imp-role-icon').innerHTML = isImp ? '<i class="fa-solid fa-user-secret text-neonPink"></i>' : '<i class="fa-solid fa-users text-neonBlue"></i>';
+            document.getElementById('imp-role-title').innerText = isImp ? 'ALARM!' : 'Dein Geheimwort:';
+            document.getElementById('imp-role-title').className = isImp ? 'font-heading text-2xl font-bold mb-2 neon-text-pink' : 'font-heading text-2xl font-bold mb-2 text-gray-400';
+            
+            const wordEl = document.getElementById('imp-role-word');
+            wordEl.innerText = isImp ? impState.wordImp : impState.wordCiv;
+            wordEl.className = isImp ? 'font-display text-3xl font-black neon-text-pink text-center' : 'font-display text-4xl font-black neon-text-blue text-center';
+
+            document.getElementById('imp-role-desc').innerText = isImp ? 'Höre gut zu, was die anderen sagen und pass dich an!' : 'Lass dir nichts anmerken. Beschreibe das Wort gleich mit einem Satz.';
+
+            card.classList.add('revealed');
+            
+            // Show next button after a short delay
+            setTimeout(() => {
+                const btn = document.getElementById('imp-next-btn');
+                btn.classList.remove('opacity-0', 'pointer-events-none');
+                btn.classList.add('opacity-100', 'pointer-events-auto');
+            }, 800);
+        }
+
+        function showImposterRole() {
+            nav('imp-reveal');
+        }
+
+        function nextImposterTurn() {
+            impState.currentTurn++;
+            renderImposterPassScreen();
+        }
+
+        function renderImposterVoteScreen() {
+            const list = document.getElementById('imp-vote-list');
+            list.innerHTML = '';
+            
+            players.forEach((p, i) => {
+                list.innerHTML += `
+                    <button onclick="resolveImposter()" class="w-full glass-card p-4 text-left font-bold text-lg hover:border-neonPink transition-colors flex justify-between items-center group">
+                        ${p}
+                        <i class="fa-solid fa-crosshairs text-neonPink opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </button>
+                `;
+            });
+            
+            nav('imp-vote');
+        }
+
+        function resolveImposter() {
+            document.getElementById('imp-result-name').innerText = players[impState.imposterIndex];
+            document.getElementById('imp-result-word').innerText = impState.wordCiv;
+            
+            nav('imp-result');
+            triggerConfetti();
+        }
+
+        /* ==================== FAKE OR FACT LOGIC ==================== */
+        function startFoF() {
+            fofState.scores = {};
+            players.forEach(p => fofState.scores[p] = 0);
+            fofState.remainingQs = shuffle([...fofData]);
+            fofState.currentTurn = 0;
+            
+            renderFoFScreen();
+        }
+
+        function renderFoFScreen() {
+            if(fofState.remainingQs.length === 0) {
+                fofState.remainingQs = shuffle([...fofData]); // reshuffle if empty
+            }
+            
+            const pName = players[fofState.currentTurn % players.length];
+            const q = fofState.remainingQs.pop();
+            fofState.currentQuestion = q; // store for answer check
+            
+            document.getElementById('fof-current-player').innerText = pName;
+            document.getElementById('fof-score').innerText = fofState.scores[pName];
+            
+            const stEl = document.getElementById('fof-statement');
+            stEl.innerText = q.q;
+            
+            // Remove animation to re-trigger
+            stEl.classList.remove('animate-slide-in');
+            void stEl.offsetWidth; // trigger reflow
+            stEl.classList.add('animate-slide-in');
+
+            nav('fof');
+        }
+
+        function answerFoF(userAnswer) {
+            const isCorrect = (userAnswer === fofState.currentQuestion.a);
+            const pName = players[fofState.currentTurn % players.length];
+            
+            if(isCorrect) {
+                fofState.scores[pName]++;
+                document.getElementById('fof-score').innerText = fofState.scores[pName];
+            }
+
+            // Show Feedback Overlay
+            const overlay = document.getElementById('fof-feedback');
+            const content = document.getElementById('fof-feedback-content');
+            
+            document.getElementById('fof-icon').innerHTML = isCorrect ? '<i class="fa-solid fa-circle-check text-green-500 shadow-green"></i>' : '<i class="fa-solid fa-circle-xmark text-red-500 shadow-red"></i>';
+            document.getElementById('fof-result-text').innerText = isCorrect ? 'Richtig!' : 'Falsch!';
+            document.getElementById('fof-result-text').className = isCorrect ? 'font-display text-4xl font-black mb-2 text-green-400' : 'font-display text-4xl font-black mb-2 text-red-400';
+            document.getElementById('fof-explanation').innerText = fofState.currentQuestion.exp;
+
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100', 'pointer-events-auto');
+            content.classList.remove('scale-75');
+            content.classList.add('scale-100');
+            
+            if(isCorrect) triggerConfetti(0.5);
+        }
+
+        function nextFoFTurn() {
+            // Hide Overlay
+            const overlay = document.getElementById('fof-feedback');
+            const content = document.getElementById('fof-feedback-content');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            overlay.classList.remove('opacity-100', 'pointer-events-auto');
+            content.classList.add('scale-75');
+            content.classList.remove('scale-100');
+
+            fofState.currentTurn++;
+            setTimeout(renderFoFScreen, 300); // Wait for overlay fade
+        }
+
+
+        /* ==================== 100 QUESTIONS LOGIC ==================== */
+        function startQ100() {
+            q100State.remainingQs = shuffle([...q100Data]);
+            q100State.currentTurn = 0;
+            renderQ100Screen();
+        }
+
+        function renderQ100Screen() {
+            if(q100State.remainingQs.length === 0) {
+                q100State.remainingQs = shuffle([...q100Data]);
+            }
+            
+            const pName = players[q100State.currentTurn % players.length];
+            const q = q100State.remainingQs.pop();
+            
+            const nameEl = document.getElementById('q100-player');
+            const qEl = document.getElementById('q100-question');
+            
+            nameEl.innerText = pName;
+            qEl.innerText = q;
+
+            // Trigger animations
+            nameEl.classList.remove('animate-pulse-glow');
+            qEl.classList.remove('animate-slide-in');
+            void nameEl.offsetWidth;
+            nameEl.classList.add('animate-pulse-glow');
+            qEl.classList.add('animate-slide-in');
+
+            nav('q100');
+        }
+
+        function nextQ100() {
+            q100State.currentTurn++;
+            renderQ100Screen();
+        }
+
+
+        /* --- VISUAL EFFECTS --- */
+        function triggerConfetti(durationScalar = 1) {
+            var duration = 3000 * durationScalar;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#8b5cf6', '#ec4899', '#3b82f6']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#8b5cf6', '#ec4899', '#3b82f6']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        // Particle Background System (Hyperrealistic depth effect)
+        function initParticles() {
+            const canvas = document.getElementById('particles-bg');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 3 + 0.5;
+                    this.speedX = Math.random() * 0.5 - 0.25;
+                    this.speedY = Math.random() * 0.5 - 0.25;
+                    // Colors matching the brand
+                    const colors = ['rgba(139, 92, 246, 0.3)', 'rgba(59, 130, 246, 0.3)', 'rgba(236, 72, 153, 0.3)', 'rgba(255,255,255,0.1)'];
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    
+                    if (this.x > canvas.width) this.x = 0;
+                    else if (this.x < 0) this.x = canvas.width;
+                    if (this.y > canvas.height) this.y = 0;
+                    else if (this.y < 0) this.y = canvas.height;
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Add subtle glow to larger particles
+                    if(this.size > 2) {
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = this.color;
+                    } else {
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+
+            for(let i = 0; i < 70; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Draw slight radial gradient overlay
+                let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
+                gradient.addColorStop(0, '#1e293b');
+                gradient.addColorStop(1, '#0f172a');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0,0,canvas.width, canvas.height);
+
+                for(let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+    </script>
+</body>
+</html>
+
