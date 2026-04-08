@@ -1,0 +1,905 @@
+```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flash by BilalToday.com</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#080b12',
+                        neonPurple: '#9333ea',
+                        neonBlue: '#2563eb',
+                        neonPink: '#e11d48',
+                        neonYellow: '#ca8a04',
+                        neonGreen: '#059669',
+                        neonRed: '#dc2626'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary-hue: 220; 
+        }
+
+        body {
+            background-color: #080b12;
+            color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: pan-y; 
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Dynamischer Premium Hintergrund */
+        #dynamic-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 0%, hsl(var(--primary-hue), 60%, 12%) 0%, #080b12 80%);
+            transition: background 1.5s ease-in-out;
+        }
+
+        #particles-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* Hyperrealistisches Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* 3D Tilt Effekt */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+        .tilt-content {
+            transform: translateZ(20px);
+        }
+
+        /* Moderne Buttons */
+        .btn-modern {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+        .btn-modern:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #9333ea);
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 10px rgba(147, 51, 234, 0.5);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulseSoft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .animate-slide-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+
+        /* Screens */
+        .screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 20px;
+            padding-top: 60px;
+            padding-bottom: 40px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* Taboom Timer Circle */
+        .timer-ring {
+            transition: stroke-dashoffset 1s linear;
+        }
+        
+        /* Ad Banner Styles */
+        .ad-banner {
+            background: linear-gradient(120deg, rgba(37, 99, 235, 0.1), rgba(147, 51, 234, 0.1));
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .ad-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-20deg);
+            animation: shine 4s infinite;
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="dynamic-bg"></div>
+    <canvas id="particles-bg"></canvas>
+
+    <!-- Header / Nav -->
+    <header id="global-header" class="fixed top-0 left-0 w-full z-50 p-5 flex justify-between items-center opacity-0 transition-opacity duration-1000 pointer-events-none">
+        <h1 class="font-heading font-black text-xl tracking-wide text-white drop-shadow-md">
+            FLASH
+        </h1>
+        <div class="text-xs font-medium text-gray-400">
+            by <span class="text-white">BilalToday.com</span>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN: LADER ==================== -->
+    <div id="screen-loader" class="screen active justify-center items-center z-50 !p-0">
+        <div class="text-center w-full flex flex-col items-center">
+            
+            <h1 class="font-heading font-black text-7xl md:text-9xl tracking-tight text-white mb-2 opacity-0 animate-[fadeInUp_1s_0.2s_forwards] animate-float drop-shadow-[0_0_40px_rgba(255,255,255,0.2)]">
+                FLASH
+            </h1>
+            
+            <p class="text-gray-400 font-medium tracking-widest text-sm opacity-0 animate-[fadeInUp_1s_0.6s_forwards]">
+                by <strong class="text-white">BilalToday.com</strong>
+            </p>
+            
+            <div class="w-48 h-[3px] bg-white/10 rounded-full mt-12 overflow-hidden opacity-0 animate-[fadeInUp_1s_0.8s_forwards]">
+                <div id="loader-progress" class="h-full bg-white w-0 shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
+            </div>
+            <p id="loader-text" class="text-[10px] text-gray-500 mt-4 font-mono tracking-widest uppercase opacity-0 animate-[fadeInUp_1s_0.8s_forwards] animate-[pulseSoft_2s_infinite]">Loading...</p>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN: HAUPTMENÜ ==================== -->
+    <div id="screen-home" class="screen items-center">
+        <div class="max-w-md w-full mx-auto space-y-6 mt-4 pb-10">
+            
+            <!-- AD 1: BilalToday KI (WhatsApp) -->
+            <a href="https://ki.bilaltoday.com" target="_blank" class="block animate-slide-up" style="animation-delay: 0.05s;">
+                <div class="glass-card ad-banner p-4 flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center text-white text-xl shadow-[0_0_15px_rgba(37,211,102,0.4)]">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white group-hover:text-[#25D366] transition-colors">BilalToday KI</h3>
+                            <p class="text-[10px] text-gray-300">Dein smarter WhatsApp Assistent & Spiel</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+                </div>
+            </a>
+
+            <!-- MULTIPLAYER SECTION -->
+            <div class="animate-slide-up" style="animation-delay: 0.1s;">
+                <h2 class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-4 ml-2">Party Modus</h2>
+
+                <div class="space-y-3">
+                    
+                    <!-- NEW: Taboom -->
+                    <div class="glass-card p-4 cursor-pointer tilt-card group" onclick="startGameSetup('taboom')">
+                        <div class="tilt-content flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl shadow-[0_0_15px_rgba(79,70,229,0.4)]">
+                                <i class="fa-solid fa-microphone-lines"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-heading font-bold text-lg text-white">Taboom</h3>
+                                    <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30 font-bold tracking-wider">NEU</span>
+                                </div>
+                                <p class="text-gray-400 text-xs">Erklären, ohne die verbotenen Wörter!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Imposter -->
+                    <div class="glass-card p-4 cursor-pointer tilt-card group" onclick="startGameSetup('imposter')">
+                        <div class="tilt-content flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl">
+                                <i class="fa-solid fa-user-secret"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white">Imposter</h3>
+                                <p class="text-gray-400 text-xs">Finde den Lügner in der Gruppe.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fake or Fact -->
+                    <div class="glass-card p-4 cursor-pointer tilt-card group" onclick="startGameSetup('fof')">
+                        <div class="tilt-content flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white">Fake or Fact</h3>
+                                <p class="text-gray-400 text-xs">Wahrheit oder Lüge? Testet euer Wissen.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wahrheit oder Pflicht -->
+                    <div class="glass-card p-4 cursor-pointer tilt-card group" onclick="startGameSetup('tod')">
+                        <div class="tilt-content flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white text-xl">
+                                <i class="fa-solid fa-fire"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white">Wahrheit o. Pflicht</h3>
+                                <p class="text-gray-400 text-xs">Der Party-Klassiker.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SINGLEPLAYER SECTION -->
+            <div class="animate-slide-up" style="animation-delay: 0.2s;">
+                <h2 class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-4 ml-2 mt-2">Solo Modus</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="glass-card p-4 text-center cursor-pointer tilt-card group" onclick="startSinglePlayer('reflex')">
+                        <div class="tilt-content">
+                            <i class="fa-solid fa-bolt text-2xl text-white/80 mb-2"></i>
+                            <h3 class="font-heading font-bold text-sm text-white">Neon Reflex</h3>
+                        </div>
+                    </div>
+                    <div class="glass-card p-4 text-center cursor-pointer tilt-card group" onclick="startSinglePlayer('quiz')">
+                        <div class="tilt-content">
+                            <i class="fa-solid fa-trophy text-2xl text-white/80 mb-2"></i>
+                            <h3 class="font-heading font-bold text-sm text-white">Solo Quiz</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Player Setup Button -->
+            <div class="animate-slide-up pt-4" style="animation-delay: 0.3s;">
+                <button onclick="editPlayers()" class="btn-modern w-full py-4 rounded-2xl text-sm text-white font-medium flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-users-gear opacity-70"></i> <span class="opacity-90">Spieler verwalten</span>
+                </button>
+            </div>
+
+            <!-- AD 2: BilalToday App -->
+            <a href="https://app.bilaltoday.com" target="_blank" class="block animate-slide-up mt-8" style="animation-delay: 0.4s;">
+                <div class="glass-card p-5 border-white/10 flex flex-col items-center text-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-0"></div>
+                    <i class="fa-solid fa-mobile-screen text-3xl text-gray-400 mb-3 relative z-10 group-hover:text-white transition-colors"></i>
+                    <h3 class="text-sm font-bold text-white relative z-10 mb-1">Hol dir die BilalToday App</h3>
+                    <p class="text-[11px] text-gray-400 relative z-10 mb-3">Die volle Experience, direkt auf deinem Homescreen.</p>
+                    <span class="text-[10px] bg-white/10 px-4 py-1.5 rounded-full text-white relative z-10 font-medium border border-white/20">Zum Download</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN: SETUP PLAYERS ==================== -->
+    <div id="screen-setup" class="screen items-center">
+        <div class="max-w-md w-full mx-auto glass-card p-6 mt-6 animate-slide-up">
+            <div class="flex items-center gap-3 mb-6">
+                <button onclick="nav('home')" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="font-heading text-xl font-bold text-white">Mitspieler</h2>
+            </div>
+            
+            <div id="player-list" class="space-y-2 mb-6 max-h-[40vh] overflow-y-auto pr-2">
+                <!-- Dynamische Spielerliste -->
+            </div>
+
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="new-player-input" placeholder="Name eingeben..." class="flex-1 bg-black/20 rounded-xl px-4 py-3 text-sm border border-white/10 focus:border-white/30 text-white outline-none transition-colors" onkeypress="if(event.key==='Enter') addPlayer()">
+                <button onclick="addPlayer()" class="btn-primary rounded-xl px-5 transition-transform text-white">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <button onclick="finishSetup()" class="btn-primary w-full py-4 rounded-xl font-heading font-bold text-lg text-white">
+                Speichern
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ==================== GAME: TABOOM ==================== -->
+    <div id="screen-taboom-prep" class="screen items-center justify-center">
+        <div class="max-w-md w-full text-center glass-card p-8 animate-slide-up">
+            <i class="fa-solid fa-stopwatch text-5xl mb-6 text-indigo-400 animate-float"></i>
+            <p class="text-gray-400 text-sm uppercase tracking-widest mb-2">Erklärer</p>
+            <h2 id="taboom-current-player" class="font-heading text-3xl font-black text-white mb-6">Name</h2>
+            <p class="text-sm text-gray-300 mb-8 leading-relaxed">Erkläre die gesuchten Wörter. Du hast <strong>45 Sekunden</strong>. Nutze nicht die verbotenen Wörter!</p>
+            <button onclick="startTaboomRound()" class="btn-primary w-full py-4 rounded-xl font-bold text-lg text-white">Starten!</button>
+            <button onclick="nav('home')" class="w-full mt-4 py-2 text-gray-500 text-sm">Abbrechen</button>
+        </div>
+    </div>
+
+    <div id="screen-taboom-play" class="screen items-center justify-between pb-8">
+        <div class="max-w-md w-full mx-auto flex flex-col h-full animate-slide-up">
+            
+            <!-- Header: Score & Timer -->
+            <div class="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/10 mb-6">
+                <div class="text-center">
+                    <p class="text-[10px] text-gray-400 uppercase">Punkte</p>
+                    <h3 id="taboom-score" class="font-heading text-2xl font-bold text-indigo-400">0</h3>
+                </div>
+                
+                <div class="relative w-14 h-14 flex items-center justify-center">
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                        <circle cx="28" cy="28" r="24" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none" />
+                        <circle id="taboom-timer-ring" class="timer-ring" cx="28" cy="28" r="24" stroke="#fff" stroke-width="4" fill="none" stroke-dasharray="150" stroke-dashoffset="0" />
+                    </svg>
+                    <span id="taboom-timer-text" class="font-bold text-white relative z-10">45</span>
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="glass-card flex-1 flex flex-col items-center justify-center p-6 border-indigo-500/30 text-center relative overflow-hidden">
+                <p class="text-xs text-gray-400 uppercase tracking-widest mb-2">Suchwort</p>
+                <h2 id="taboom-word" class="font-heading text-4xl md:text-5xl font-black text-white mb-8 tracking-tight">WORT</h2>
+                
+                <div class="w-full h-px bg-white/10 mb-6 relative">
+                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#0d111a] px-3 text-[10px] text-red-400 font-bold tracking-widest border border-white/5 rounded-full">TABU</span>
+                </div>
+                
+                <ul id="taboom-forbidden" class="space-y-3 w-full max-w-[200px]">
+                    <!-- Injected via JS -->
+                </ul>
+            </div>
+
+            <!-- Controls -->
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <button onclick="taboomAction(-1)" class="btn-modern p-5 rounded-2xl flex flex-col items-center border-red-500/30 text-red-400 hover:bg-red-500/10">
+                    <i class="fa-solid fa-xmark text-2xl mb-1"></i>
+                    <span class="text-xs font-bold">ÜBERSPRINGEN</span>
+                </button>
+                <button onclick="taboomAction(1)" class="btn-modern p-5 rounded-2xl flex flex-col items-center border-green-500/30 text-green-400 hover:bg-green-500/10">
+                    <i class="fa-solid fa-check text-2xl mb-1"></i>
+                    <span class="text-xs font-bold">RICHTIG</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== ANDERE SPIELE (Kurzfassungen fürs Layout) ==================== -->
+    
+    <!-- Wahrheit oder Pflicht -->
+    <div id="screen-tod" class="screen items-center">
+        <div class="max-w-md w-full mx-auto animate-slide-up mt-4">
+            <div class="text-center mb-8">
+                <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Am Zug</p>
+                <h3 id="tod-player" class="font-heading text-3xl font-black text-white">Name</h3>
+            </div>
+            <div id="tod-choice-view" class="grid grid-cols-2 gap-4 mb-8">
+                <button onclick="revealToD('truth')" class="glass-card p-8 border-blue-500/30 hover:bg-blue-500/10 transition-all flex flex-col items-center gap-4 tilt-card">
+                    <i class="fa-solid fa-eye text-4xl text-blue-400"></i>
+                    <span class="font-bold text-sm text-white tracking-widest">WAHRHEIT</span>
+                </button>
+                <button onclick="revealToD('dare')" class="glass-card p-8 border-red-500/30 hover:bg-red-500/10 transition-all flex flex-col items-center gap-4 tilt-card">
+                    <i class="fa-solid fa-fire text-4xl text-red-400"></i>
+                    <span class="font-bold text-sm text-white tracking-widest">PFLICHT</span>
+                </button>
+            </div>
+            <div id="tod-result-view" class="hidden flex-col items-center w-full">
+                <div class="glass-card p-8 text-center w-full min-h-[200px] flex flex-col justify-center relative mb-6" id="tod-result-card">
+                    <h4 id="tod-type-label" class="absolute top-4 left-0 w-full text-center text-[10px] font-bold tracking-widest uppercase opacity-60">Typ</h4>
+                    <p id="tod-text" class="font-heading text-xl font-medium leading-relaxed mt-4">Text lädt...</p>
+                </div>
+                <button onclick="nextToD()" class="btn-modern w-full py-4 rounded-xl font-bold text-white">Nächster Spieler</button>
+            </div>
+            <button onclick="nav('home')" class="w-full mt-4 py-3 text-gray-500 text-sm">Menü</button>
+        </div>
+    </div>
+
+    <!-- Imposter -->
+    <div id="screen-imp-pass" class="screen items-center justify-center">
+        <div class="max-w-md w-full text-center glass-card p-8 animate-slide-up">
+            <i class="fa-solid fa-mobile-screen text-4xl mb-6 text-white/50"></i>
+            <h2 class="font-heading text-xl text-gray-300 mb-2">Handy weitergeben an</h2>
+            <div id="imp-current-player" class="text-4xl font-heading font-black text-white my-6">Name</div>
+            <button onclick="nav('imp-reveal')" class="btn-primary w-full py-4 rounded-xl font-bold text-white">Rolle ansehen</button>
+        </div>
+    </div>
+
+    <div id="screen-imp-reveal" class="screen items-center justify-center">
+        <div class="max-w-md w-full text-center glass-card p-8 cursor-pointer" onclick="revealImposterRole()">
+            <div id="imp-hidden-view">
+                <i class="fa-solid fa-eye-slash text-4xl text-gray-500 mb-4"></i>
+                <h2 class="font-heading text-lg font-medium text-gray-300">Tippe auf die Karte</h2>
+            </div>
+            <div id="imp-shown-view" class="hidden flex flex-col items-center">
+                <div id="imp-role-icon" class="text-4xl mb-4"></div>
+                <h3 id="imp-role-title" class="text-sm font-bold tracking-widest text-gray-400 uppercase">Rolle</h3>
+                <div id="imp-role-word" class="font-heading text-3xl font-black text-white my-4">WORT</div>
+                <button onclick="nextImposterTurn(); event.stopPropagation();" class="btn-modern w-full py-3 rounded-xl font-bold mt-4 text-white">Verstanden</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-imp-vote" class="screen items-center">
+        <div class="max-w-md w-full mx-auto animate-slide-up mt-4">
+            <h2 class="font-heading text-2xl font-bold text-center text-white mb-6">Wer ist der Imposter?</h2>
+            <div id="imp-vote-list" class="space-y-2 mb-6"></div>
+            <button onclick="nav('home')" class="w-full text-sm text-gray-500">Abbrechen</button>
+        </div>
+    </div>
+
+    <div id="screen-imp-result" class="screen items-center justify-center text-center">
+        <div class="max-w-md w-full glass-card p-8 border-red-500/30">
+            <p class="text-sm text-gray-400 uppercase tracking-widest mb-1">Der Imposter war</p>
+            <div id="imp-result-name" class="font-heading text-4xl font-black text-red-400 mb-6">Name</div>
+            <p class="text-xs text-gray-400 mb-1">Das Wort war:</p>
+            <div id="imp-result-word" class="font-heading text-xl font-bold text-white mb-8">WORT</div>
+            <button onclick="startGameSetup('imposter')" class="btn-primary w-full py-3 rounded-xl font-bold mb-3 text-white">Noch eine Runde</button>
+            <button onclick="nav('home')" class="btn-modern w-full py-3 rounded-xl font-bold text-white">Menü</button>
+        </div>
+    </div>
+
+    <!-- Fake or Fact -->
+    <div id="screen-fof" class="screen items-center">
+        <div class="max-w-md w-full mx-auto mt-4 animate-slide-up">
+            <div class="flex justify-between items-center mb-6 bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div><p class="text-[10px] text-gray-400 uppercase tracking-widest">Spieler</p><h3 id="fof-current-player" class="font-bold text-white">Name</h3></div>
+                <div class="text-right"><p class="text-[10px] text-gray-400 uppercase tracking-widest">Punkte</p><h3 id="fof-score" class="font-bold text-white">0</h3></div>
+            </div>
+            <div class="glass-card p-8 text-center min-h-[220px] flex flex-col justify-center mb-6">
+                <p id="fof-statement" class="font-heading text-xl font-medium leading-snug">Aussage lädt...</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="answerFoF(false)" class="btn-modern p-5 border-red-500/30 text-red-400 rounded-2xl flex flex-col items-center hover:bg-red-500/10"><i class="fa-solid fa-xmark text-2xl mb-2"></i><span class="text-xs font-bold tracking-widest">FAKE</span></button>
+                <button onclick="answerFoF(true)" class="btn-modern p-5 border-green-500/30 text-green-400 rounded-2xl flex flex-col items-center hover:bg-green-500/10"><i class="fa-solid fa-check text-2xl mb-2"></i><span class="text-xs font-bold tracking-widest">FACT</span></button>
+            </div>
+            <button onclick="nav('home')" class="w-full mt-8 py-3 text-gray-500 text-sm">Beenden</button>
+        </div>
+    </div>
+
+    <!-- Reflex -->
+    <div id="screen-reflex" class="screen !p-0">
+        <div id="reflex-area" class="w-full h-full flex flex-col items-center justify-center bg-[#0f172a] transition-colors duration-100" onpointerdown="handleReflexClick()">
+            <div class="text-center pointer-events-none p-6">
+                <i id="reflex-icon" class="fa-solid fa-hand-pointer text-5xl mb-6 text-white/30"></i>
+                <h2 id="reflex-text" class="font-heading text-3xl font-bold mb-2 text-white">Tippen zum Starten</h2>
+                <p id="reflex-subtext" class="text-white/50 text-sm">Warte auf GRÜN.</p>
+            </div>
+            <button onclick="nav('home'); event.stopPropagation();" class="absolute bottom-10 px-6 py-3 bg-black/40 backdrop-blur-md rounded-full text-white/70 hover:text-white z-50 text-sm font-medium">Beenden</button>
+        </div>
+    </div>
+
+    <!-- Quiz -->
+    <div id="screen-quiz" class="screen items-center">
+        <div class="max-w-md w-full mx-auto animate-slide-up mt-2">
+            <div class="flex justify-between items-center mb-6 bg-white/5 rounded-2xl p-4 border border-white/10">
+                <div><p class="text-[10px] text-gray-400 uppercase tracking-widest">Highscore</p><h3 id="quiz-high" class="font-bold text-white">0</h3></div>
+                <div class="text-right"><p class="text-[10px] text-gray-400 uppercase tracking-widest">Streak</p><h3 id="quiz-streak" class="font-heading text-2xl font-black text-indigo-400">0</h3></div>
+            </div>
+            <div class="glass-card p-6 text-center min-h-[160px] flex flex-col justify-center mb-6 border-indigo-500/20">
+                <p id="quiz-question" class="font-heading text-lg font-medium leading-snug">Frage?</p>
+            </div>
+            <div id="quiz-answers" class="grid grid-cols-1 gap-3 mb-6"></div>
+            <button onclick="nav('home')" class="w-full mt-2 py-3 text-gray-500 text-sm">Beenden</button>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        /* --- UTILS & HAPTICS --- */
+        function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+        function playTap() { vibrate(15); }
+        function playSuccess() { vibrate([30, 50, 30]); }
+        function playError() { vibrate([50, 50, 50]); }
+
+        function changeThemeHue(hue) {
+            document.documentElement.style.setProperty('--primary-hue', hue);
+        }
+
+        function tiltEffect() {
+            document.querySelectorAll('.tilt-card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    let rect = card.getBoundingClientRect();
+                    let x = e.clientX - rect.left; 
+                    let y = e.clientY - rect.top;
+                    let rotateX = ((y / rect.height) - 0.5) * -10;
+                    let rotateY = ((x / rect.width) - 0.5) * 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+                });
+                card.addEventListener('mouseleave', () => card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)');
+            });
+        }
+
+        /* --- STATE & DATA --- */
+        let players = [];
+        let pendingGameStart = null;
+        let gameState = {};
+
+        // Taboom Data
+        const taboomData = [
+            { w: "Kino", f: ["Popcorn", "Film", "Leinwand", "Ticket", "Schauen"] },
+            { w: "Auto", f: ["Fahren", "Reifen", "Lenkrad", "Motor", "Straße"] },
+            { w: "Hund", f: ["Bellen", "Tier", "Haustier", "Katze", "Leine"] },
+            { w: "Pizza", f: ["Italien", "Käse", "Teig", "Salami", "Essen"] },
+            { w: "Handy", f: ["Telefon", "Anrufen", "Apple", "Bildschirm", "App"] },
+            { w: "Schule", f: ["Lehrer", "Lernen", "Klasse", "Tafel", "Hausaufgaben"] },
+            { w: "Urlaub", f: ["Reisen", "Strand", "Flugzeug", "Hotel", "Sonne"] },
+            { w: "Kaffee", f: ["Trinken", "Müde", "Wach", "Schwarz", "Bohne"] }
+        ];
+
+        // Other Data
+        const imposterThemes = [["Strand","Wüste"],["Kino","Theater"],["Pizza","Burger"],["Handy","Buch"]];
+        const fofData = [{q:"Erdbeeren sind botanisch Nüsse.",a:true},{q:"Menschen nutzen nur 10% ihres Gehirns.",a:false},{q:"Oktopusse haben drei Herzen.",a:true}];
+        const todTruth = ["Wann hast du das letzte Mal gelogen?","Was ist dein größtes Geheimnis?","Was ist dir extrem peinlich?"];
+        const todDare = ["Lass jemanden ein Foto auf Insta posten.","Sprich 3 Runden mit fremdem Akzent.","Mache 10 Liegestütze."];
+        const quizData = [{q:"Wie viele Planeten hat unser Sonnensystem?",a:["8","7","9","10"],c:0},{q:"Wer malte die Mona Lisa?",a:["Van Gogh","Da Vinci","Picasso","Michelangelo"],c:1}];
+
+        /* --- INIT --- */
+        document.addEventListener("DOMContentLoaded", () => {
+            initParticles();
+            loadStorage();
+            simulateBoot();
+            tiltEffect();
+            document.body.addEventListener('click', e => { if(e.target.closest('button') || e.target.closest('.cursor-pointer')) playTap(); });
+        });
+
+        function nav(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const t = document.getElementById('screen-' + screenId);
+            if(t) t.classList.add('active');
+            
+            const header = document.getElementById('global-header');
+            if(screenId !== 'loader' && screenId !== 'reflex') {
+                header.classList.remove('opacity-0');
+                header.classList.add('pointer-events-auto');
+            } else {
+                header.classList.add('opacity-0');
+                header.classList.remove('pointer-events-auto');
+            }
+
+            // Adaptive Theme Colors
+            if(screenId === 'home') changeThemeHue(220); // Blueish dark
+            else if(screenId.startsWith('taboom')) changeThemeHue(260); // Indigo
+            else if(screenId === 'tod') changeThemeHue(350); // Reddish
+            else if(screenId.startsWith('imp')) changeThemeHue(280); // Purple
+            else if(screenId === 'quiz') changeThemeHue(200); // Cyanish
+            
+            window.scrollTo(0, 0);
+        }
+
+        function simulateBoot() {
+            const bar = document.getElementById('loader-progress');
+            let p = 0;
+            const int = setInterval(() => {
+                p += Math.random() * 25;
+                if(p > 100) p = 100;
+                bar.style.width = p + '%';
+                if(p === 100) { clearInterval(int); setTimeout(() => nav('home'), 500); }
+            }, 150);
+        }
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        /* --- PLAYERS --- */
+        function loadStorage() {
+            let p = localStorage.getItem('flash_players'); if(p) players = JSON.parse(p);
+            let qh = localStorage.getItem('flash_quiz_high'); gameState.quizHigh = qh ? parseInt(qh) : 0;
+            let rh = localStorage.getItem('flash_reflex_high'); gameState.reflexHigh = rh ? parseInt(rh) : 9999;
+        }
+        function savePlayers() { localStorage.setItem('flash_players', JSON.stringify(players)); }
+        function editPlayers() { renderPlayerList(); nav('setup'); }
+        function addPlayer() {
+            const inp = document.getElementById('new-player-input');
+            const n = inp.value.trim();
+            if(n && !players.includes(n)) { players.push(n); inp.value = ''; savePlayers(); renderPlayerList(); }
+        }
+        function removePlayer(idx) { players.splice(idx, 1); savePlayers(); renderPlayerList(); }
+        function renderPlayerList() {
+            const l = document.getElementById('player-list'); l.innerHTML = '';
+            players.forEach((p, i) => {
+                l.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 text-white text-sm"><span class="font-medium">${p}</span><button onclick="removePlayer(${i})" class="text-red-400 p-2"><i class="fa-solid fa-xmark"></i></button></div>`;
+            });
+        }
+        function startGameSetup(gameId) {
+            pendingGameStart = gameId;
+            if(players.length < (gameId === 'imposter' ? 3 : 2)) editPlayers(); else initGame(gameId);
+        }
+        function startSinglePlayer(gameId) { initGame(gameId); }
+        function finishSetup() {
+            if(pendingGameStart) { if(players.length < 2) return alert("Brauche min. 2 Spieler!"); initGame(pendingGameStart); pendingGameStart = null; } 
+            else nav('home');
+        }
+        function initGame(id) {
+            if(id==='taboom') startTaboomPrep();
+            if(id==='imposter') startImposter();
+            if(id==='fof') startFoF();
+            if(id==='tod') startToD();
+            if(id==='reflex') startReflex();
+            if(id==='quiz') startQuiz();
+        }
+
+        /* --- TABOOM --- */
+        let taboomTimerInt;
+        function startTaboomPrep() {
+            if(!gameState.taboomTurn) gameState.taboomTurn = 0;
+            document.getElementById('taboom-current-player').innerText = players[gameState.taboomTurn % players.length];
+            nav('taboom-prep');
+        }
+        function startTaboomRound() {
+            gameState.taboomScore = 0;
+            gameState.taboomTime = 45;
+            gameState.taboomWords = shuffle([...taboomData]);
+            document.getElementById('taboom-score').innerText = "0";
+            loadNextTaboomWord();
+            nav('taboom-play');
+            
+            // Start Timer
+            document.getElementById('taboom-timer-ring').style.strokeDashoffset = "0";
+            clearInterval(taboomTimerInt);
+            taboomTimerInt = setInterval(() => {
+                gameState.taboomTime--;
+                document.getElementById('taboom-timer-text').innerText = gameState.taboomTime;
+                
+                // Animate Ring (150 is the approx dasharray circumference for r=24)
+                let offset = 150 - (gameState.taboomTime / 45) * 150;
+                document.getElementById('taboom-timer-ring').style.strokeDashoffset = offset;
+
+                if(gameState.taboomTime <= 0) {
+                    clearInterval(taboomTimerInt);
+                    endTaboomRound();
+                }
+            }, 1000);
+        }
+        function loadNextTaboomWord() {
+            if(gameState.taboomWords.length === 0) gameState.taboomWords = shuffle([...taboomData]);
+            const item = gameState.taboomWords.pop();
+            document.getElementById('taboom-word').innerText = item.w;
+            const ul = document.getElementById('taboom-forbidden');
+            ul.innerHTML = '';
+            item.f.forEach(f => {
+                ul.innerHTML += `<li class="bg-black/30 text-gray-300 py-1.5 rounded-lg text-sm border border-white/5">${f}</li>`;
+            });
+        }
+        function taboomAction(pts) {
+            gameState.taboomScore += pts;
+            document.getElementById('taboom-score').innerText = gameState.taboomScore;
+            if(pts > 0) { playSuccess(); triggerConfetti(0.2); } else playError();
+            loadNextTaboomWord();
+        }
+        function endTaboomRound() {
+            playError(); // Buzzer sound
+            alert(`Zeit abgelaufen! Du hast ${gameState.taboomScore} Punkte erreicht.`);
+            gameState.taboomTurn++;
+            startTaboomPrep();
+        }
+
+        /* --- OTHER GAMES --- */
+        // Truth or Dare
+        function startToD() { gameState.todTurn = 0; renderToD(); }
+        function renderToD() {
+            document.getElementById('tod-player').innerText = players[gameState.todTurn % players.length];
+            document.getElementById('tod-choice-view').classList.remove('hidden'); document.getElementById('tod-choice-view').classList.add('grid');
+            document.getElementById('tod-result-view').classList.add('hidden'); document.getElementById('tod-result-view').classList.remove('flex');
+            nav('tod');
+        }
+        function revealToD(type) {
+            const arr = type === 'truth' ? todTruth : todDare;
+            document.getElementById('tod-text').innerText = arr[Math.floor(Math.random() * arr.length)];
+            document.getElementById('tod-choice-view').classList.add('hidden'); document.getElementById('tod-choice-view').classList.remove('grid');
+            document.getElementById('tod-result-view').classList.remove('hidden'); document.getElementById('tod-result-view').classList.add('flex');
+            
+            const card = document.getElementById('tod-result-card');
+            if(type === 'truth') { card.className = "glass-card p-8 text-center w-full min-h-[200px] flex flex-col justify-center relative mb-6 border-blue-500/50"; document.getElementById('tod-type-label').innerText="WAHRHEIT"; document.getElementById('tod-type-label').className="absolute top-4 left-0 w-full text-center text-[10px] font-bold tracking-widest uppercase text-blue-400";}
+            else { card.className = "glass-card p-8 text-center w-full min-h-[200px] flex flex-col justify-center relative mb-6 border-red-500/50"; document.getElementById('tod-type-label').innerText="PFLICHT"; document.getElementById('tod-type-label').className="absolute top-4 left-0 w-full text-center text-[10px] font-bold tracking-widest uppercase text-red-400";}
+        }
+        function nextToD() { gameState.todTurn++; renderToD(); }
+
+        // Imposter
+        function startImposter() {
+            gameState.impTurn = 0; gameState.impIdx = Math.floor(Math.random() * players.length);
+            const t = imposterThemes[Math.floor(Math.random() * imposterThemes.length)];
+            gameState.impW1 = t[0]; gameState.impW2 = t[1];
+            renderImpPass();
+        }
+        function renderImpPass() {
+            if(gameState.impTurn >= players.length) return renderImpVote();
+            document.getElementById('imp-current-player').innerText = players[gameState.impTurn];
+            document.getElementById('imp-hidden-view').classList.remove('hidden'); document.getElementById('imp-shown-view').classList.add('hidden');
+            nav('imp-pass');
+        }
+        function revealImposterRole() {
+            const isImp = gameState.impTurn === gameState.impIdx;
+            document.getElementById('imp-hidden-view').classList.add('hidden'); document.getElementById('imp-shown-view').classList.remove('hidden');
+            document.getElementById('imp-role-icon').innerHTML = isImp ? '<i class="fa-solid fa-user-secret text-red-400"></i>' : '<i class="fa-solid fa-users text-white"></i>';
+            document.getElementById('imp-role-word').innerText = isImp ? gameState.impW2 : gameState.impW1;
+            document.getElementById('imp-role-word').className = isImp ? "font-heading text-3xl font-black text-red-400 my-4" : "font-heading text-3xl font-black text-white my-4";
+        }
+        function nextImposterTurn() { gameState.impTurn++; renderImpPass(); }
+        function renderImpVote() {
+            const l = document.getElementById('imp-vote-list'); l.innerHTML = '';
+            players.forEach((p, i) => { l.innerHTML += `<button onclick="resolveImposter()" class="btn-modern w-full p-4 font-medium text-left flex justify-between items-center text-white">${p} <i class="fa-solid fa-gavel text-gray-500"></i></button>`; });
+            nav('imp-vote');
+        }
+        function resolveImposter() {
+            document.getElementById('imp-result-name').innerText = players[gameState.impIdx];
+            document.getElementById('imp-result-word').innerText = gameState.impW1;
+            playSuccess(); triggerConfetti(); nav('imp-result');
+        }
+
+        // Fake or Fact
+        function startFoF() {
+            gameState.fofScores = {}; players.forEach(p => gameState.fofScores[p] = 0);
+            gameState.fofQ = shuffle([...fofData]); gameState.fofTurn = 0; renderFoF();
+        }
+        function renderFoF() {
+            if(gameState.fofQ.length === 0) gameState.fofQ = shuffle([...fofData]);
+            const p = players[gameState.fofTurn % players.length]; const q = gameState.fofQ.pop(); gameState.fofCurrQ = q;
+            document.getElementById('fof-current-player').innerText = p; document.getElementById('fof-score').innerText = gameState.fofScores[p];
+            document.getElementById('fof-statement').innerText = q.q; nav('fof');
+        }
+        function answerFoF(ans) {
+            const p = players[gameState.fofTurn % players.length];
+            if(ans === gameState.fofCurrQ.a) { gameState.fofScores[p]++; playSuccess(); triggerConfetti(0.2); } else playError();
+            gameState.fofTurn++; renderFoF();
+        }
+
+        // Reflex
+        let reflexTimer, reflexState = 'idle', reflexStartTime;
+        function startReflex() { nav('reflex'); resetReflexUI(); }
+        function resetReflexUI() {
+            reflexState = 'idle'; const a = document.getElementById('reflex-area');
+            a.className = "w-full h-full flex flex-col items-center justify-center bg-[#0f172a]";
+            document.getElementById('reflex-icon').className = "fa-solid fa-hand-pointer text-5xl mb-6 text-white/30";
+            document.getElementById('reflex-text').innerText = "Tippen zum Starten";
+            document.getElementById('reflex-subtext').innerText = "Highscore: " + (gameState.reflexHigh === 9999 ? '-' : gameState.reflexHigh+'ms');
+        }
+        function handleReflexClick() {
+            const a = document.getElementById('reflex-area'), i = document.getElementById('reflex-icon'), t = document.getElementById('reflex-text'), s = document.getElementById('reflex-subtext');
+            if(reflexState === 'idle' || reflexState === 'result') {
+                reflexState = 'wait'; a.className = "w-full h-full flex flex-col items-center justify-center bg-red-600";
+                i.className = "fa-solid fa-clock text-5xl mb-6 text-white/80 animate-spin-slow"; t.innerText = "WARTEN..."; s.innerText = "";
+                reflexTimer = setTimeout(() => {
+                    reflexState = 'ready'; a.className = "w-full h-full flex flex-col items-center justify-center bg-green-500";
+                    i.className = "fa-solid fa-bolt text-5xl mb-6 text-white"; t.innerText = "JETZT!"; playTap(); reflexStartTime = performance.now();
+                }, 2000 + Math.random()*3000);
+            } else if(reflexState === 'wait') {
+                clearTimeout(reflexTimer); reflexState = 'result'; playError();
+                a.className = "w-full h-full flex flex-col items-center justify-center bg-[#0f172a]";
+                i.className = "fa-solid fa-triangle-exclamation text-5xl mb-6 text-red-400"; t.innerText = "Zu früh!"; s.innerText = "Tippe nochmal.";
+            } else if(reflexState === 'ready') {
+                const time = Math.round(performance.now() - reflexStartTime); reflexState = 'result'; playSuccess();
+                let nh = false; if(time < gameState.reflexHigh) { gameState.reflexHigh = time; localStorage.setItem('flash_reflex_high', time); nh = true; }
+                a.className = "w-full h-full flex flex-col items-center justify-center bg-[#0f172a]";
+                i.className = "fa-solid fa-stopwatch text-5xl mb-6 text-indigo-400"; t.innerText = time + " ms";
+                s.innerText = nh ? "NEUER HIGHSCORE!" : "Tippe nochmal."; if(nh) triggerConfetti(0.5);
+            }
+        }
+
+        // Quiz
+        function startQuiz() { gameState.quizStreak = 0; gameState.quizRemaining = shuffle([...quizData]); renderQuiz(); }
+        function renderQuiz() {
+            if(gameState.quizRemaining.length === 0) gameState.quizRemaining = shuffle([...quizData]);
+            const q = gameState.quizRemaining.pop(); gameState.currentQuiz = q;
+            document.getElementById('quiz-streak').innerText = gameState.quizStreak; document.getElementById('quiz-high').innerText = gameState.quizHigh;
+            document.getElementById('quiz-question').innerText = q.q;
+            const ansDiv = document.getElementById('quiz-answers'); ansDiv.innerHTML = '';
+            q.a.forEach((ans, idx) => { ansDiv.innerHTML += `<button onclick="answerQuiz(${idx})" class="btn-modern p-4 text-left font-medium text-white rounded-xl w-full">${ans}</button>`; });
+            nav('quiz');
+        }
+        function answerQuiz(idx) {
+            const isCorrect = idx === gameState.currentQuiz.c; const btns = document.getElementById('quiz-answers').children;
+            if(isCorrect) {
+                playSuccess(); btns[idx].classList.add('bg-green-500/20', 'border-green-500', 'text-green-400');
+                gameState.quizStreak++; if(gameState.quizStreak > gameState.quizHigh) { gameState.quizHigh = gameState.quizStreak; localStorage.setItem('flash_quiz_high', gameState.quizHigh); }
+                setTimeout(renderQuiz, 800);
+            } else {
+                playError(); btns[idx].classList.add('bg-red-500/20', 'border-red-500', 'text-red-400');
+                btns[gameState.currentQuiz.c].classList.add('bg-green-500/20', 'border-green-500', 'text-green-400');
+                gameState.quizStreak = 0; setTimeout(renderQuiz, 1500);
+            }
+        }
+
+        /* --- VISUALS --- */
+        function triggerConfetti(scalar = 1) {
+            var dur = 2000 * scalar; var end = Date.now() + dur;
+            (function frame() {
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#9333ea', '#2563eb', '#ffffff']});
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#9333ea', '#2563eb', '#ffffff']});
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+        function initParticles() {
+            const canvas = document.getElementById('particles-bg'); const ctx = canvas.getContext('2d'); let particles = [];
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize); resize();
+            for(let i=0; i<40; i++) particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5+0.5, vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3, c: 'rgba(255,255,255,0.15)' });
+            function animate() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    if(p.x > canvas.width) p.x=0; else if(p.x<0) p.x=canvas.width;
+                    if(p.y > canvas.height) p.y=0; else if(p.y<0) p.y=canvas.height;
+                    ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,Math.PI*2); ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            } animate();
+        }
+    </script>
+</body>
+</html>
+
+
+```
